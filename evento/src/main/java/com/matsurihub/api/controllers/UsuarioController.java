@@ -1,67 +1,60 @@
 package com.matsurihub.api.controllers;
 
-import com.matsurihub.api.domain.usuario.RequestUsuario;
-import com.matsurihub.api.domain.usuario.Usuario;
-import com.matsurihub.api.domain.usuario.UsuarioRepository;
+import com.matsurihub.api.domain.usuario.*;
 import com.matsurihub.api.domain.usuario.RequestUsuario;
 import com.matsurihub.api.domain.usuario.UsuarioRepository;
+import com.matsurihub.api.services.UsuarioService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/usuario")
+@RequiredArgsConstructor
 public class UsuarioController {
-    @Autowired
-    private UsuarioRepository repository;
+
+    private final UsuarioService service;
+
     @GetMapping
-    public ResponseEntity getAllUsuarios(){
-        var allUsuarios = repository.findAll();
-        return ResponseEntity.ok(allUsuarios);
+    public ResponseEntity<List<UsuarioResponse>> getAllUsuarios(){
+        var usuarios = service.listarTodos()
+                .stream()
+                .map(UsuarioResponse::new)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(usuarios);
     }
 
     @PostMapping
-    public ResponseEntity registerUsuario(@RequestBody @Valid RequestUsuario data){
-        Usuario newUsuario = new Usuario(data);
-        repository.save(newUsuario);
-        return ResponseEntity.ok().build();
-    }
-
-    @PutMapping("/{id}")
-    @Transactional
-    public ResponseEntity updateUsuario(@RequestBody @Valid RequestUsuario data){
-        Optional<Usuario> optionalUsuario = repository.findById(UUID.fromString(String.valueOf(data.id())));
-        if (optionalUsuario.isPresent()) {
-            Usuario usuario = optionalUsuario.get();
-            usuario.setNome(data.nome());
-            usuario.setEmail(data.email());
-            usuario.setSenha(data.senha());
-            return ResponseEntity.ok(usuario);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<UsuarioResponse> registerUsuario(@RequestBody @Valid RequestUsuario data){
+        var novoUsuario = service.cadastrarUsuario(data);
+        return ResponseEntity.ok(new UsuarioResponse(novoUsuario));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity getUsuarioById(@PathVariable UUID id){
-        Optional<Usuario> optionalUsuario = repository.findById(id);
-        return optionalUsuario.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<UsuarioResponse> getUsuarioById(@PathVariable UUID id){
+        return service.buscarPorId(id)
+                .map(usuario -> ResponseEntity.ok(new UsuarioResponse(usuario)))
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<UsuarioResponse> updateUsuario(@PathVariable UUID id, @Valid RequestUsuario data){
+        return service.atualizarUsuario(id, data)
+                .map(usuario -> ResponseEntity.ok(new UsuarioResponse(usuario)))
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity deleteUsuario(@PathVariable UUID id){
-        Optional<Usuario> optionalUsuario = repository.findById(id);
-        if (optionalUsuario.isPresent()){
-            repository.delete(optionalUsuario.get());
-            return ResponseEntity.noContent().build();
-        }else {
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<Void> deleteUsuario(@PathVariable UUID id){
+        boolean deletado = service.deletarUsuario(id);
+        return deletado ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
     }
-
 }
