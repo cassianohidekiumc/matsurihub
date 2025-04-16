@@ -1,0 +1,2 @@
+ALTER TABLE usuario ADD COLUMN cidade VARCHAR(255);
+ALTER TABLE usuario ADD COLUMN idade INT;

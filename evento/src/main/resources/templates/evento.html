@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Gerenciar Eventos</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+</head>
+<body>
+<h1>Lista de Eventos</h1>
+
+<table border="1">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Título</th>
+        <th>Descrição</th>
+        <th>Data e Hora</th>
+        <th>Remoto</th>
+        <th>Endereço</th>
+        <th>Ações</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="evento : ${eventos}">
+        <td th:text="${evento.id}"></td>
+        <td th:text="${evento.titulo}"></td>
+        <td th:text="${evento.descricao}"></td>
+        <td th:text="${evento.dataHora}"></td>
+        <td th:text="${evento.remoto} ? 'Sim' : 'Não'"></td>
+        <td>
+            <span th:text="${evento.endereco != null ? evento.endereco.rua + ', ' + evento.endereco.numero : 'N/A'}"></span>
+        </td>
+        <td>
+            <!-- Link para editar poderia abrir uma página ou modal -->
+            <a th:href="@{|/evento/${evento.id}|}">Editar</a> |
+            <a th:href="@{|/evento/${evento.id}|}"
+               onclick="return confirm('Tem certeza que deseja deletar este evento?');"
+               th:attr="href=@{|/evento/${evento.id}|}">
+                Deletar
+            </a>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+<h2>Criar Novo Evento</h2>
+<form th:action="@{/evento}" method="post" th:object="${evento}">
+    <label for="titulo">Título:</label>
+    <input type="text" id="titulo" name="titulo" required/><br/>
+
+    <label for="descricao">Descrição:</label>
+    <input type="text" id="descricao" name="descricao" required/><br/>
+
+    <label for="dataHora">Data e Hora:</label>
+    <input type="datetime-local" id="dataHora" name="dataHora" required/><br/>
+
+    <label for="remoto">Remoto:</label>
+    <select id="remoto" name="remoto" required>
+        <option value="true">Sim</option>
+        <option value="false">Não</option>
+    </select><br/>
+
+    <label for="eventUrl">URL do Evento (se remoto):</label>
+    <input type="url" id="eventUrl" name="eventUrl"/><br/>
+
+    <h3>Endereço:</h3>
+    <label for="rua">Rua:</label>
+    <input type="text" id="rua" name="endereco.rua"/><br/>
+
+    <label for="numero">Número:</label>
+    <input type="text" id="numero" name="endereco.numero"/><br/>
+
+    <label for="complemento">Complemento:</label>
+    <input type="text" id="complemento" name="endereco.complemento"/><br/>
+
+    <label for="bairro">Bairro:</label>
+    <input type="text" id="bairro" name="endereco.bairro"/><br/>
+
+    <label for="cidade">Cidade:</label>
+    <input type="text" id="cidade" name="endereco.cidade"/><br/>
+
+    <label for="estado">Estado:</label>
+    <input type="text" id="estado" name="endereco.estado"/><br/>
+
+    <label for="cep">CEP:</label>
+    <input type="text" id="cep" name="endereco.cep"/><br/>
+
+    <button type="submit">Salvar Evento</button>
+</form>
+
+</body>
+</html>

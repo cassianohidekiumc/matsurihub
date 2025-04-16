@@ -5,6 +5,7 @@ import com.matsurihub.api.domain.usuario.Usuario;
 import com.matsurihub.api.domain.usuario.UsuarioRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,6 +17,7 @@ import java.util.UUID;
 public class UsuarioService {
 
     private final UsuarioRepository repository;
+    private final PasswordEncoder passwordEncoder;
 
     public List<Usuario> listarTodos() {
         return repository.findAll();
@@ -27,6 +29,7 @@ public class UsuarioService {
     @Transactional
     public Usuario cadastrarUsuario(RequestUsuario data){
         Usuario usuario = new Usuario(data);
+        usuario.setSenha(passwordEncoder.encode(data.senha()));
         return repository.save(usuario);
     }
 
@@ -36,7 +39,9 @@ public class UsuarioService {
         optionalUsuario.ifPresent(usuario -> {
             usuario.setNome(data.nome());
             usuario.setEmail(data.email());
-            usuario.setSenha(data.senha());
+            usuario.setSenha(passwordEncoder.encode(data.senha()));
+            usuario.setIdade(data.idade());
+            usuario.setCidade(data.cidade());
         });
         return optionalUsuario;
     }

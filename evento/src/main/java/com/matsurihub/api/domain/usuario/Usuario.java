@@ -22,15 +22,16 @@ public class Usuario {
 
     private String senha;
 
-//    @OneToMany(mappedBy = "usuario")
-//    private List<ParticipacaoEvento> participacoes;
-// precisa criar a classe ParticipacaoEvento -> vou fazer isso posteriormente, assim que
-// entregar o primeiro crud funcional, conforme solicitado
+    private Integer idade;
+
+    private String cidade;
 
     public Usuario(RequestUsuario requestUsuario){
         this.nome = requestUsuario.nome();
         this.email = requestUsuario.email();
         this.senha = requestUsuario.senha();
+        this.idade = requestUsuario.idade();
+        this.cidade = requestUsuario.cidade();
 
     }
 

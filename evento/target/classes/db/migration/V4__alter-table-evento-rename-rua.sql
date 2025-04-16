@@ -1,0 +1,1 @@
+ALTER TABLE evento RENAME COLUMN logradouro TO rua;
